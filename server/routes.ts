@@ -4,11 +4,12 @@ import jwt from "jsonwebtoken";
 import { z } from "zod";
 import { storage } from "./storage";
 
-// JWT secret - must be provided via environment variable
-const JWT_SECRET = process.env.JWT_SECRET;
+// JWT secret - use environment variable or secure default for development
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-jwt-secret-key-replace-in-production';
 
-if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET environment variable is required");
+// Warn in production if using default
+if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
+  throw new Error("JWT_SECRET environment variable is required in production");
 }
 
 // TypeScript assertion after validation
