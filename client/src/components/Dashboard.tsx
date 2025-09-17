@@ -133,7 +133,7 @@ export default function Dashboard() {
     email: "sarah.chen@company.com",
     avatar: undefined
   });
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useReducedMotion() ?? false;
 
   const handleServiceAction = (serviceId: string, action: string) => {
     console.log(`Service ${serviceId} - Action: ${action}`);
