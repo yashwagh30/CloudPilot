@@ -2,12 +2,17 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
+import { storage } from "./storage";
 
-// Simple in-memory user storage for demo purposes
-const users = new Map<string, { id: string; email: string; password: string; name: string }>();
+// JWT secret - must be provided via environment variable
+const JWT_SECRET = process.env.JWT_SECRET;
 
-// JWT secret - in production, this should be in environment variables
-const JWT_SECRET = process.env.JWT_SECRET || "your-super-secret-jwt-key";
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is required");
+}
+
+// TypeScript assertion after validation
+const jwtSecret: string = JWT_SECRET;
 
 // Validation schemas
 const loginSchema = z.object({
@@ -28,26 +33,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { email, password, name } = registerSchema.parse(req.body);
       
       // Check if user already exists
-      const existingUser = Array.from(users.values()).find(u => u.email === email);
+      const existingUser = await storage.getUserByEmail(email);
       if (existingUser) {
         return res.status(400).json({ error: "User already exists" });
       }
       
-      // Create new user
-      const userId = Date.now().toString();
-      const user = { id: userId, email, password, name };
-      users.set(userId, user);
+      // Create new user (password will be hashed automatically)
+      const user = await storage.createUser({ email, password, name });
       
       // Generate JWT token
       const token = jwt.sign(
-        { userId, email, name },
-        JWT_SECRET,
+        { userId: user.id, email: user.email, name: user.name },
+        jwtSecret,
         { expiresIn: "7d" }
       );
       
       res.json({ 
         token, 
-        user: { id: userId, email, name } 
+        user: { id: user.id, email: user.email, name: user.name } 
       });
     } catch (error) {
       res.status(400).json({ error: "Invalid registration data" });
@@ -60,15 +63,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { email, password } = loginSchema.parse(req.body);
       
       // Find user
-      const user = Array.from(users.values()).find(u => u.email === email);
-      if (!user || user.password !== password) {
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+      
+      // Verify password using bcrypt
+      const isPasswordValid = await storage.verifyPassword(password, user.password);
+      if (!isPasswordValid) {
         return res.status(401).json({ error: "Invalid credentials" });
       }
       
       // Generate JWT token
       const token = jwt.sign(
         { userId: user.id, email: user.email, name: user.name },
-        JWT_SECRET,
+        jwtSecret,
         { expiresIn: "7d" }
       );
       
@@ -91,7 +100,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as any;
+      const decoded = jwt.verify(token, jwtSecret) as any;
       res.json({ 
         user: { 
           id: decoded.userId, 
