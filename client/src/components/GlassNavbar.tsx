@@ -45,7 +45,7 @@ export default function GlassNavbar({ onMenuToggle, onSearch, user }: GlassNavba
         <Button
           variant="ghost"
           size="icon"
-          className="lg:hidden hover-elevate"
+          className="lg:hidden"
           onClick={onMenuToggle}
           data-testid="button-menu-toggle"
         >
@@ -72,7 +72,6 @@ export default function GlassNavbar({ onMenuToggle, onSearch, user }: GlassNavba
         <Button
           variant="ghost"
           size="icon"
-          className="hover-elevate"
           onClick={toggleTheme}
           data-testid="button-theme-toggle"
         >
@@ -84,7 +83,6 @@ export default function GlassNavbar({ onMenuToggle, onSearch, user }: GlassNavba
           <Button
             variant="ghost"
             size="icon"
-            className="hover-elevate"
             data-testid="button-notifications"
           >
             <Bell className="w-4 h-4" />
@@ -99,7 +97,7 @@ export default function GlassNavbar({ onMenuToggle, onSearch, user }: GlassNavba
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="relative h-8 w-8 rounded-full hover-elevate"
+              className="relative h-8 w-8 rounded-full"
               data-testid="button-user-menu"
             >
               <Avatar className="h-8 w-8">

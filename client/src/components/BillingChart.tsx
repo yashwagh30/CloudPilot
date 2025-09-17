@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,12 +32,13 @@ export default function BillingChart({ onDownloadReport, onViewDetails }: Billin
   const lastMonthCost = 189;
   const costChange = ((currentMonthCost - lastMonthCost) / lastMonthCost) * 100;
   const isDecreasing = costChange < 0;
+  const shouldReduceMotion = useReducedMotion();
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.2 }}
+      initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
+      animate={shouldReduceMotion ? false : { opacity: 1, y: 0 }}
+      transition={shouldReduceMotion ? undefined : { delay: 0.2 }}
     >
       <Card className="bg-card/80 backdrop-blur-sm border-white/20">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
@@ -138,9 +139,9 @@ export default function BillingChart({ onDownloadReport, onViewDetails }: Billin
               {serviceBreakdown.map((service, index) => (
                 <motion.div
                   key={service.name}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 * index }}
+                  initial={shouldReduceMotion ? false : { opacity: 0, x: -20 }}
+                  animate={shouldReduceMotion ? false : { opacity: 1, x: 0 }}
+                  transition={shouldReduceMotion ? undefined : { delay: 0.1 * index }}
                   className="flex items-center justify-between"
                 >
                   <div className="flex items-center space-x-3">

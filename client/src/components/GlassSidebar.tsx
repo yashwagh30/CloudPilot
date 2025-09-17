@@ -88,7 +88,7 @@ export default function GlassSidebar({ onItemSelect, activeItem = "dashboard" }:
               <Button
                 variant="ghost"
                 className={cn(
-                  "w-full justify-start text-left h-10 hover-elevate",
+                  "w-full justify-start text-left h-10",
                   isCollapsed ? "px-2" : "px-3",
                   isActive && "bg-sidebar-accent text-sidebar-accent-foreground"
                 )}
@@ -117,7 +117,7 @@ export default function GlassSidebar({ onItemSelect, activeItem = "dashboard" }:
         <Button
           variant="ghost"
           size="sm"
-          className="w-full hover-elevate"
+          className="w-full"
           onClick={() => setIsCollapsed(!isCollapsed)}
           data-testid="button-toggle-sidebar"
         >

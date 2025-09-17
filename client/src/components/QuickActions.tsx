@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -71,11 +71,13 @@ const quickActions: QuickAction[] = [
 ];
 
 export default function QuickActions({ onAction }: QuickActionsProps) {
+  const shouldReduceMotion = useReducedMotion();
+  
   return (
     <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
+      variants={shouldReduceMotion ? undefined : containerVariants}
+      initial={shouldReduceMotion ? false : "hidden"}
+      animate={shouldReduceMotion ? false : "visible"}
     >
       <Card className="gradient-border noise-overlay bg-card/80 backdrop-blur-sm border-white/10">
         <CardHeader className="pb-4">
@@ -95,9 +97,9 @@ export default function QuickActions({ onAction }: QuickActionsProps) {
               return (
                 <motion.div
                   key={action.id}
-                  variants={cardVariants}
-                  whileHover="hover"
-                  whileTap="tap"
+                  variants={shouldReduceMotion ? undefined : cardVariants}
+                  whileHover={shouldReduceMotion ? undefined : "hover"}
+                  whileTap={shouldReduceMotion ? undefined : "tap"}
                   className="organic-hover"
                 >
                   <Button
@@ -142,7 +144,7 @@ export default function QuickActions({ onAction }: QuickActionsProps) {
           
           {/* View All Actions */}
           <motion.div
-            variants={cardVariants}
+            variants={shouldReduceMotion ? undefined : cardVariants}
             className="mt-4 pt-4 border-t border-white/10"
           >
             <Button

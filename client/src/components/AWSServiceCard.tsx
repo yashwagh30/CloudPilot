@@ -35,6 +35,7 @@ interface AWSService {
 interface AWSServiceCardProps {
   service: AWSService;
   onAction: (serviceId: string, action: string) => void;
+  shouldReduceMotion?: boolean;
 }
 
 const statusColors = {
@@ -50,7 +51,7 @@ const serviceTypeIcons = {
   Lambda: Zap
 };
 
-export default function AWSServiceCard({ service, onAction }: AWSServiceCardProps) {
+export default function AWSServiceCard({ service, onAction, shouldReduceMotion = false }: AWSServiceCardProps) {
   const [isLoading, setIsLoading] = useState(false);
   const StatusIcon = service.status === 'running' ? Square : Play;
   const ServiceIcon = serviceTypeIcons[service.type];
@@ -68,10 +69,10 @@ export default function AWSServiceCard({ service, onAction }: AWSServiceCardProp
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -2 }}
-      transition={{ duration: 0.2 }}
+      initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
+      animate={shouldReduceMotion ? false : { opacity: 1, y: 0 }}
+      whileHover={shouldReduceMotion ? undefined : { y: -2 }}
+      transition={shouldReduceMotion ? undefined : { duration: 0.2 }}
     >
       <Card className="bg-card/80 backdrop-blur-sm border-white/20 hover-elevate group">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -90,7 +91,7 @@ export default function AWSServiceCard({ service, onAction }: AWSServiceCardProp
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="w-8 h-8 hover-elevate"
+                className="w-8 h-8"
                 data-testid={`menu-${service.id}`}
               >
                 <MoreVertical className="w-4 h-4" />
@@ -129,9 +130,9 @@ export default function AWSServiceCard({ service, onAction }: AWSServiceCardProp
             </div>
             <div className="w-full bg-background/50 rounded-full h-2 overflow-hidden">
               <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${service.usage}%` }}
-                transition={{ duration: 1, delay: 0.2 }}
+                initial={shouldReduceMotion ? false : { width: 0 }}
+                animate={shouldReduceMotion ? false : { width: `${service.usage}%` }}
+                transition={shouldReduceMotion ? undefined : { duration: 1, delay: 0.2 }}
                 className={cn(
                   "h-full rounded-full",
                   service.usage > 80 ? "bg-destructive" :
@@ -153,8 +154,8 @@ export default function AWSServiceCard({ service, onAction }: AWSServiceCardProp
             >
               {isLoading ? (
                 <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  animate={shouldReduceMotion ? false : { rotate: 360 }}
+                  transition={shouldReduceMotion ? undefined : { duration: 1, repeat: Infinity, ease: "linear" }}
                   className="w-4 h-4 border-2 border-current border-t-transparent rounded-full"
                 />
               ) : (

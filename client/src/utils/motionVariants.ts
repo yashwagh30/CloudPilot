@@ -1,16 +1,31 @@
 import { Variants } from "framer-motion";
 
+// Check for reduced motion preference
+const prefersReducedMotion = typeof window !== 'undefined' 
+  ? window.matchMedia('(prefers-reduced-motion: reduce)').matches 
+  : false;
+
+// Helper to create motion-aware variants
+const createVariant = (motion: Variants, reduced?: Variants): Variants => 
+  prefersReducedMotion && reduced ? reduced : motion;
+
 // Container variants for staggered children
-export const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.1,
+export const containerVariants: Variants = createVariant(
+  {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.1,
+      },
     },
   },
-};
+  {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.2 } },
+  }
+);
 
 // Card variants for organic feel
 export const cardVariants: Variants = {

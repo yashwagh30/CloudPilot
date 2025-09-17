@@ -25,6 +25,7 @@ interface StatCardProps {
   description?: string;
   onAction?: (action: string) => void;
   className?: string;
+  shouldReduceMotion?: boolean;
 }
 
 export default function StatCard({ 
@@ -35,7 +36,8 @@ export default function StatCard({
   sparklineData,
   description,
   onAction,
-  className 
+  className,
+  shouldReduceMotion = false 
 }: StatCardProps) {
   const getTrendColor = (trend: 'up' | 'down' | 'neutral') => {
     switch (trend) {
@@ -60,9 +62,9 @@ export default function StatCard({
 
   return (
     <motion.div
-      variants={cardVariants}
-      whileHover="hover"
-      whileTap="tap"
+      variants={shouldReduceMotion ? undefined : cardVariants}
+      whileHover={shouldReduceMotion ? undefined : "hover"}
+      whileTap={shouldReduceMotion ? undefined : "tap"}
       className={cn("organic-hover", className)}
     >
       <Card className="gradient-border noise-overlay bg-card/80 backdrop-blur-sm border-white/10 h-full">
@@ -82,7 +84,8 @@ export default function StatCard({
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="w-6 h-6 hover-elevate"
+                    className="w-6 h-6"
+                    data-testid={`stat-menu-${title.toLowerCase().replace(/\s+/g, '-')}`}
                   >
                     <MoreHorizontal className="w-4 h-4" />
                   </Button>

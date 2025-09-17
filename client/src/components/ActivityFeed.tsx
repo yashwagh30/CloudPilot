@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -116,11 +116,13 @@ const getActivityColor = (type: string) => {
 };
 
 export default function ActivityFeed({ onViewAll, onItemClick }: ActivityFeedProps) {
+  const shouldReduceMotion = useReducedMotion();
+  
   return (
     <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
+      variants={shouldReduceMotion ? undefined : containerVariants}
+      initial={shouldReduceMotion ? false : "hidden"}
+      animate={shouldReduceMotion ? false : "visible"}
     >
       <Card className="gradient-border noise-overlay bg-card/80 backdrop-blur-sm border-white/10">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
@@ -147,8 +149,8 @@ export default function ActivityFeed({ onViewAll, onItemClick }: ActivityFeedPro
             return (
               <motion.div
                 key={activity.id}
-                variants={cardVariants}
-                whileHover="hover"
+                variants={shouldReduceMotion ? undefined : cardVariants}
+                whileHover={shouldReduceMotion ? undefined : "hover"}
                 className="organic-hover cursor-pointer"
                 onClick={() => onItemClick(activity.id)}
                 data-testid={`activity-${activity.id}`}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import GlassSidebar from "./GlassSidebar";
 import GlassNavbar from "./GlassNavbar";
 import AWSServiceCard from "./AWSServiceCard";
@@ -133,6 +133,7 @@ export default function Dashboard() {
     email: "sarah.chen@company.com",
     avatar: undefined
   });
+  const shouldReduceMotion = useReducedMotion();
 
   const handleServiceAction = (serviceId: string, action: string) => {
     console.log(`Service ${serviceId} - Action: ${action}`);
@@ -182,9 +183,9 @@ export default function Dashboard() {
         <main className="flex-1 overflow-auto p-6 space-y-6">
           <AnimatePresence mode="wait">
             <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
+              variants={shouldReduceMotion ? undefined : containerVariants}
+              initial={shouldReduceMotion ? false : "hidden"}
+              animate={shouldReduceMotion ? false : "visible"}
               className="space-y-6"
             >
               {/* Greeting Banner */}
@@ -195,7 +196,7 @@ export default function Dashboard() {
 
               {/* KPI Strip */}
               <motion.div
-                variants={containerVariants}
+                variants={shouldReduceMotion ? undefined : containerVariants}
                 className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4"
               >
                 {kpiData.map((kpi, index) => (
@@ -208,6 +209,7 @@ export default function Dashboard() {
                     sparklineData={kpi.sparklineData}
                     description={kpi.description}
                     onAction={(action) => handleStatAction(kpi.title, action)}
+                    shouldReduceMotion={shouldReduceMotion}
                   />
                 ))}
               </motion.div>
@@ -232,20 +234,25 @@ export default function Dashboard() {
                     </Button>
                   </div>
                   
-                  {/* Masonry-style Services Grid */}
+                  {/* Services Masonry Layout */}
                   <motion.div
-                    variants={containerVariants}
-                    className="grid grid-cols-1 lg:grid-cols-2 gap-4"
+                    variants={shouldReduceMotion ? undefined : containerVariants}
+                    className="columns-1 md:columns-2 xl:columns-3 gap-4"
                   >
                     {mockServices.map((service, index) => (
                       <motion.div
                         key={service.id}
-                        variants={cardVariants}
-                        className={index % 3 === 0 ? "lg:col-span-2" : ""}
+                        variants={shouldReduceMotion ? undefined : cardVariants}
+                        initial={shouldReduceMotion ? false : "hidden"}
+                        animate={shouldReduceMotion ? false : "visible"}
+                        whileHover={shouldReduceMotion ? undefined : "hover"}
+                        whileTap={shouldReduceMotion ? undefined : "tap"}
+                        className="break-inside-avoid mb-4 inline-block w-full"
                       >
                         <AWSServiceCard
                           service={service}
                           onAction={handleServiceAction}
+                          shouldReduceMotion={shouldReduceMotion}
                         />
                       </motion.div>
                     ))}

@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -30,12 +30,13 @@ function getTimeBasedGreeting() {
 export default function GreetingBanner({ userName, onQuickAction }: GreetingBannerProps) {
   const { text: greeting, gradient } = getTimeBasedGreeting();
   const firstName = userName.split(' ')[0];
+  const shouldReduceMotion = useReducedMotion();
 
   return (
     <motion.div
-      variants={fadeInUp}
-      initial="hidden"
-      animate="visible"
+      variants={shouldReduceMotion ? undefined : fadeInUp}
+      initial={shouldReduceMotion ? false : "hidden"}
+      animate={shouldReduceMotion ? false : "visible"}
       className="relative overflow-hidden"
     >
       <Card className={`gradient-border noise-overlay bg-gradient-to-r ${gradient} border-white/10`}>
@@ -62,9 +63,9 @@ export default function GreetingBanner({ userName, onQuickAction }: GreetingBann
                 {recentActivity.map((activity, index) => (
                   <motion.div
                     key={index}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.2 + index * 0.1 }}
+                    initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.9 }}
+                    animate={shouldReduceMotion ? false : { opacity: 1, scale: 1 }}
+                    transition={shouldReduceMotion ? undefined : { delay: 0.2 + index * 0.1 }}
                   >
                     <Badge 
                       variant="secondary" 
