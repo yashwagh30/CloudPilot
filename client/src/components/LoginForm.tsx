@@ -5,27 +5,40 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Cloud, Lock, User } from "lucide-react";
+import { AuthService, type User as AuthUser } from "@/lib/auth";
 
 interface LoginFormProps {
-  onLogin: (credentials: { email: string; password: string }) => void;
+  onAuth: (user: AuthUser) => void;
   onToggleMode: () => void;
   isSignup?: boolean;
 }
 
-export default function LoginForm({ onLogin, onToggleMode, isSignup = false }: LoginFormProps) {
+export default function LoginForm({ onAuth, onToggleMode, isSignup = false }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      onLogin({ email, password });
+    setError("");
+    
+    try {
+      let response;
+      if (isSignup) {
+        response = await AuthService.register(email, password, name);
+      } else {
+        response = await AuthService.login(email, password);
+      }
+      onAuth(response.user);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Authentication failed');
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -64,6 +77,27 @@ export default function LoginForm({ onLogin, onToggleMode, isSignup = false }: L
           
           <CardContent className="space-y-6">
             <form onSubmit={handleSubmit} className="space-y-4">
+              {isSignup && (
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-sm font-medium text-foreground">
+                    Full Name
+                  </Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="name"
+                      type="text"
+                      placeholder="Your full name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="pl-10 bg-background/50 border-white/20 focus:border-primary/50 backdrop-blur-sm"
+                      data-testid="input-name"
+                      required
+                    />
+                  </div>
+                </div>
+              )}
+              
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-foreground">
                   Email
@@ -92,11 +126,12 @@ export default function LoginForm({ onLogin, onToggleMode, isSignup = false }: L
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
+                    placeholder={isSignup ? "Choose a password (min 6 chars)" : "Enter your password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10 pr-10 bg-background/50 border-white/20 focus:border-primary/50 backdrop-blur-sm"
                     data-testid="input-password"
+                    minLength={isSignup ? 6 : 1}
                     required
                   />
                   <button
@@ -109,6 +144,12 @@ export default function LoginForm({ onLogin, onToggleMode, isSignup = false }: L
                   </button>
                 </div>
               </div>
+              
+              {error && (
+                <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md p-3">
+                  {error}
+                </div>
+              )}
               
               <Button
                 type="submit"

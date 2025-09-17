@@ -17,6 +17,7 @@ import {
 interface GlassNavbarProps {
   onMenuToggle: () => void;
   onSearch: (query: string) => void;
+  onLogout: () => void;
   user: {
     name: string;
     email: string;
@@ -24,7 +25,7 @@ interface GlassNavbarProps {
   };
 }
 
-export default function GlassNavbar({ onMenuToggle, onSearch, user }: GlassNavbarProps) {
+export default function GlassNavbar({ onMenuToggle, onSearch, onLogout, user }: GlassNavbarProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const { theme, toggleTheme } = useTheme();
 
@@ -133,7 +134,7 @@ export default function GlassNavbar({ onMenuToggle, onSearch, user }: GlassNavba
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem data-testid="menu-logout" className="text-destructive">
+            <DropdownMenuItem data-testid="menu-logout" className="text-destructive" onClick={onLogout}>
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

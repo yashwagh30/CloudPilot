@@ -24,6 +24,7 @@ import {
   DollarSign
 } from "lucide-react";
 import { containerVariants, cardVariants } from "@/utils/motionVariants";
+import { type User as AuthUser } from "@/lib/auth";
 
 // TODO: remove mock data
 const mockServices = [
@@ -125,14 +126,14 @@ const kpiData = [
   }
 ];
 
-export default function Dashboard() {
+interface DashboardProps {
+  user: AuthUser;
+  onLogout: () => void;
+}
+
+export default function Dashboard({ user, onLogout }: DashboardProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeSection, setActiveSection] = useState("dashboard");
-  const [user] = useState({
-    name: "Sarah Chen",
-    email: "sarah.chen@company.com",
-    avatar: undefined
-  });
   const shouldReduceMotion = useReducedMotion() ?? false;
 
   const handleServiceAction = (serviceId: string, action: string) => {
@@ -177,6 +178,7 @@ export default function Dashboard() {
           onMenuToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
           onSearch={handleSearch}
           user={user}
+          onLogout={onLogout}
         />
 
         {/* Dashboard Content */}
