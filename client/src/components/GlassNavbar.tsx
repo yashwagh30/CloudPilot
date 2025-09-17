@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useTheme } from "@/components/ThemeProvider";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,7 +26,7 @@ interface GlassNavbarProps {
 
 export default function GlassNavbar({ onMenuToggle, onSearch, user }: GlassNavbarProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const { theme, toggleTheme } = useTheme();
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,10 +73,10 @@ export default function GlassNavbar({ onMenuToggle, onSearch, user }: GlassNavba
           variant="ghost"
           size="icon"
           className="hover-elevate"
-          onClick={() => setIsDarkMode(!isDarkMode)}
+          onClick={toggleTheme}
           data-testid="button-theme-toggle"
         >
-          {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </Button>
 
         {/* Notifications */}

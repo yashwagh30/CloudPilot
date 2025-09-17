@@ -134,17 +134,17 @@
 
   --background: 220 25% 8%;
 
-  --foreground: 220 10% 90%;
+  --foreground: 220 8% 92%;
 
   --border: 220 20% 14%;
 
-  --card: 220 20% 12%;
+  --card: 220 18% 11%;
 
   --card-foreground: 220 10% 90%;
 
   --card-border: 220 20% 16%;
 
-  --sidebar: 220 22% 10%;
+  --sidebar: 220 20% 9%;
 
   --sidebar-foreground: 220 10% 90%;
 
@@ -166,7 +166,7 @@
 
   --popover-border: 220 20% 20%;
 
-  --primary: 200 100% 60%;
+  --primary: 200 85% 65%;
 
   --primary-foreground: 220 25% 8%;
 
@@ -324,5 +324,106 @@
   .border.active-elevate-2:not(.no-active-interaction-elevate)::after,
   .border.hover-elevate:not(.no-hover-interaction-elevate)::after {
     inset: -1px;
+  }
+
+  /* Noise texture overlay */
+  .noise-overlay {
+    position: relative;
+  }
+  
+  .noise-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23ffffff' fill-opacity='1' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  
+  /* Gradient borders */
+  .gradient-border {
+    position: relative;
+    background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--card)));
+    border: 1px solid transparent;
+  }
+  
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    background: linear-gradient(145deg, 
+      rgba(255,255,255,0.1) 0%, 
+      rgba(255,255,255,0.05) 50%, 
+      rgba(255,255,255,0.02) 100%);
+    border-radius: inherit;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  
+  /* Organic hover animations */
+  .organic-hover {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .organic-hover:hover {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  }
+  
+  /* Background grain */
+  .grain-bg {
+    background: 
+      radial-gradient(circle at 25% 25%, hsl(var(--primary)) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, hsl(var(--chart-2)) 0%, transparent 50%),
+      hsl(var(--background));
+    position: relative;
+  }
+  
+  .grain-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.02;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  
+  /* Skeleton loading */
+  .skeleton {
+    background: linear-gradient(90deg, 
+      hsl(var(--muted)) 25%, 
+      hsl(var(--muted-foreground) / 0.1) 50%, 
+      hsl(var(--muted)) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+  }
+  
+  @keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .organic-hover {
+      transition: none;
+    }
+    
+    .organic-hover:hover {
+      transform: none;
+    }
+    
+    .skeleton {
+      animation: none;
+      background: hsl(var(--muted));
+    }
+    
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }

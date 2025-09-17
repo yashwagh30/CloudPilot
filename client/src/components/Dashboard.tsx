@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import GlassSidebar from "./GlassSidebar";
 import GlassNavbar from "./GlassNavbar";
 import AWSServiceCard from "./AWSServiceCard";
+import GreetingBanner from "./GreetingBanner";
+import StatCard from "./StatCard";
+import QuickActions from "./QuickActions";
+import ActivityFeed from "./ActivityFeed";
 import BillingChart from "./BillingChart";
-import ResourceUsage from "./ResourceUsage";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
   Cloud, 
@@ -18,8 +20,10 @@ import {
   Server,
   HardDrive,
   Database,
-  Zap
+  Zap,
+  DollarSign
 } from "lucide-react";
+import { containerVariants, cardVariants } from "@/utils/motionVariants";
 
 // TODO: remove mock data
 const mockServices = [
@@ -85,11 +89,40 @@ const mockServices = [
   }
 ];
 
-const quickStats = [
-  { label: "Active Services", value: "12", change: "+2", icon: Cloud },
-  { label: "Monthly Cost", value: "$167", change: "-11%", icon: TrendingUp },
-  { label: "IAM Users", value: "8", change: "+1", icon: Users },
-  { label: "Security Alerts", value: "3", change: "-2", icon: Shield }
+// TODO: remove mock data
+const kpiData = [
+  {
+    title: "Active Services",
+    value: "12",
+    change: { value: "+2", trend: "up" as const },
+    icon: Cloud,
+    sparklineData: [8, 9, 11, 10, 12, 11, 12],
+    description: "Running instances and services"
+  },
+  {
+    title: "Monthly Cost",
+    value: "$167",
+    change: { value: "-11%", trend: "down" as const },
+    icon: DollarSign,
+    sparklineData: [189, 178, 165, 156, 167, 162, 167],
+    description: "Current month spending"
+  },
+  {
+    title: "IAM Users",
+    value: "8",
+    change: { value: "+1", trend: "up" as const },
+    icon: Users,
+    sparklineData: [6, 7, 7, 8, 8, 7, 8],
+    description: "Active user accounts"
+  },
+  {
+    title: "Security Score",
+    value: "94%",
+    change: { value: "+2%", trend: "up" as const },
+    icon: Shield,
+    sparklineData: [89, 91, 92, 94, 93, 95, 94],
+    description: "Overall security posture"
+  }
 ];
 
 export default function Dashboard() {
@@ -111,8 +144,23 @@ export default function Dashboard() {
     // TODO: Implement search functionality
   };
 
+  const handleQuickAction = (action: string) => {
+    console.log('Quick action:', action);
+    // TODO: Implement quick actions
+  };
+
+  const handleStatAction = (stat: string, action: string) => {
+    console.log(`Stat ${stat} - Action: ${action}`);
+    // TODO: Implement stat actions
+  };
+
+  const handleActivityClick = (activityId: string) => {
+    console.log('Activity clicked:', activityId);
+    // TODO: Implement activity details
+  };
+
   return (
-    <div className="h-screen bg-background flex overflow-hidden">
+    <div className="h-screen grain-bg flex overflow-hidden">
       {/* Sidebar */}
       <div className={`${sidebarCollapsed ? 'w-16' : 'w-64'} transition-all duration-300 flex-shrink-0`}>
         <GlassSidebar
@@ -132,113 +180,113 @@ export default function Dashboard() {
 
         {/* Dashboard Content */}
         <main className="flex-1 overflow-auto p-6 space-y-6">
-          {/* Welcome Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-2"
-          >
-            <h1 className="text-3xl font-bold text-foreground">
-              Welcome back, {user.name.split(' ')[0]} 👋
-            </h1>
-            <p className="text-muted-foreground">
-              Here's what's happening with your AWS infrastructure today.
-            </p>
-          </motion.div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="space-y-6"
+            >
+              {/* Greeting Banner */}
+              <GreetingBanner 
+                userName={user.name}
+                onQuickAction={handleQuickAction}
+              />
 
-          {/* Quick Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
-          >
-            {quickStats.map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.1 * index }}
-                >
-                  <Card className="bg-card/80 backdrop-blur-sm border-white/20 hover-elevate">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm text-muted-foreground">{stat.label}</p>
-                          <div className="flex items-center space-x-2">
-                            <span className="text-2xl font-bold text-foreground">{stat.value}</span>
-                            <Badge className="bg-chart-2/20 text-chart-2 border-0 text-xs">
-                              {stat.change}
-                            </Badge>
-                          </div>
-                        </div>
-                        <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-                          <Icon className="w-5 h-5 text-primary" />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* AWS Services */}
-            <div className="lg:col-span-2 space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-foreground flex items-center">
-                  <Activity className="w-5 h-5 mr-2 text-primary" />
-                  AWS Services
-                </h2>
-                <Button 
-                  size="sm" 
-                  className="bg-primary hover:bg-primary/90"
-                  data-testid="button-add-service"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Service
-                </Button>
-              </div>
-              
+              {/* KPI Strip */}
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                variants={containerVariants}
+                className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4"
               >
-                {mockServices.map((service, index) => (
-                  <motion.div
-                    key={service.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 * index }}
-                  >
-                    <AWSServiceCard
-                      service={service}
-                      onAction={handleServiceAction}
-                    />
-                  </motion.div>
+                {kpiData.map((kpi, index) => (
+                  <StatCard
+                    key={kpi.title}
+                    title={kpi.title}
+                    value={kpi.value}
+                    change={kpi.change}
+                    icon={kpi.icon}
+                    sparklineData={kpi.sparklineData}
+                    description={kpi.description}
+                    onAction={(action) => handleStatAction(kpi.title, action)}
+                  />
                 ))}
               </motion.div>
-            </div>
 
-            {/* Sidebar Content */}
-            <div className="space-y-6">
-              <BillingChart
-                onDownloadReport={() => console.log('Downloading report')}
-                onViewDetails={() => console.log('Viewing billing details')}
-              />
-              
-              <ResourceUsage
-                onRefresh={() => console.log('Refreshing metrics')}
-                onViewAlert={(alertId) => console.log('Viewing alert:', alertId)}
-              />
-            </div>
-          </div>
+              {/* Main Content Grid */}
+              <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+                {/* Left Column - Services */}
+                <div className="xl:col-span-2 space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-xl font-semibold text-foreground tracking-tight flex items-center">
+                      <Activity className="w-5 h-5 mr-2 text-primary" />
+                      Your AWS Resources
+                    </h2>
+                    <Button 
+                      size="sm" 
+                      className="bg-primary hover:bg-primary/90"
+                      onClick={() => handleQuickAction('create-resource')}
+                      data-testid="button-add-service"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create resource
+                    </Button>
+                  </div>
+                  
+                  {/* Masonry-style Services Grid */}
+                  <motion.div
+                    variants={containerVariants}
+                    className="grid grid-cols-1 lg:grid-cols-2 gap-4"
+                  >
+                    {mockServices.map((service, index) => (
+                      <motion.div
+                        key={service.id}
+                        variants={cardVariants}
+                        className={index % 3 === 0 ? "lg:col-span-2" : ""}
+                      >
+                        <AWSServiceCard
+                          service={service}
+                          onAction={handleServiceAction}
+                        />
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                  
+                  {/* Empty state */}
+                  {mockServices.length === 0 && (
+                    <Card className="gradient-border noise-overlay bg-card/80 backdrop-blur-sm border-white/10">
+                      <CardContent className="p-8 text-center">
+                        <Activity className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
+                        <h3 className="text-lg font-medium text-foreground mb-2">No resources yet</h3>
+                        <p className="text-muted-foreground mb-4">
+                          Get started by creating your first AWS resource
+                        </p>
+                        <Button onClick={() => handleQuickAction('create-resource')}>
+                          Create your first resource
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+
+                {/* Right Column - Quick Actions & Activity */}
+                <div className="xl:col-span-1 space-y-6">
+                  <QuickActions onAction={handleQuickAction} />
+                  <ActivityFeed 
+                    onViewAll={() => console.log('Viewing all activity')}
+                    onItemClick={handleActivityClick}
+                  />
+                </div>
+                
+                {/* Far Right - Billing */}
+                <div className="xl:col-span-1 space-y-6">
+                  <BillingChart
+                    onDownloadReport={() => console.log('Downloading report')}
+                    onViewDetails={() => console.log('Viewing billing details')}
+                  />
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
     </div>
