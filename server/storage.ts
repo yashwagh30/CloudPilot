@@ -1,6 +1,3 @@
-// Simple local storage for demo purposes
-// All user data is stored in-memory since no database integration was requested
-
 import bcrypt from "bcrypt";
 
 export interface User {
@@ -19,40 +16,26 @@ export interface CreateUser {
 const SALT_ROUNDS = 12;
 
 export class LocalStorage {
-  private users: Map<string, User>;
-
-  constructor() {
-    this.users = new Map();
-  }
+  private users: Map<string, User> = new Map();
 
   async getUser(id: string): Promise<User | undefined> {
     return this.users.get(id);
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.email === email,
-    );
+    return Array.from(this.users.values()).find(u => u.email === email);
   }
 
-  async createUser(userData: CreateUser): Promise<User> {
+  async createUser(data: CreateUser): Promise<User> {
     const id = Date.now().toString();
-    const hashedPassword = await bcrypt.hash(userData.password, SALT_ROUNDS);
-    const user: User = { 
-      ...userData, 
-      id, 
-      password: hashedPassword 
-    };
+    const password = await bcrypt.hash(data.password, SALT_ROUNDS);
+    const user: User = { ...data, id, password };
     this.users.set(id, user);
     return user;
   }
 
-  async verifyPassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
-    return bcrypt.compare(plainPassword, hashedPassword);
-  }
-
-  async getAllUsers(): Promise<User[]> {
-    return Array.from(this.users.values());
+  async verifyPassword(plain: string, hashed: string) {
+    return bcrypt.compare(plain, hashed);
   }
 }
 
